@@ -52,31 +52,115 @@ REGIONS = {
         "name": "美股",
         "benchmark": "^GSPC",  # S&P 500
         "currency": "USD",
-        # Sector ETFs to measure sector momentum
+        # Sector ETFs with pre-seeded constituents backup cache integrated
         "sector_etfs": {
-            "XLK": "科技 (Technology)",
-            "XLF": "金融 (Financials)",
-            "XLE": "能源 (Energy)",
-            "XLV": "醫療保健 (Healthcare)",
-            "XLY": "非必須消費 (Consumer Discretionary)",
-            "XLI": "工業 (Industrial)",
-            "XLP": "必須消費 (Consumer Staples)",
-            "XLB": "原物料 (Materials)",
-            "XLU": "公用事業 (Utilities)"
+            "XLK": {
+                "name": "科技 (Technology)",
+                "constituents": [
+                    "MSFT", "AAPL", "NVDA", "AVGO", "ORCL", "CRM", "AMD", "QCOM", "NOW", "ADBE", 
+                    "INTU", "TXN", "AMAT", "MU", "IBM", "LRCX", "PANW", "ADI", "KLAC", "SNPS"
+                ]
+            },
+            "XLF": {
+                "name": "金融 (Financials)",
+                "constituents": [
+                    "JPM", "BRK-B", "V", "MA", "BAC", "WFC", "MS", "GS", "SCHW", "C", 
+                    "BLK", "AXP", "BX", "CB", "SPGI", "MMC", "PGR", "MET", "AON", "USB"
+                ]
+            },
+            "XLE": {
+                "name": "能源 (Energy)",
+                "constituents": [
+                    "XOM", "CVX", "COP", "SLB", "EOG", "MPC", "PSX", "VLO", "OXY", "WMB", 
+                    "HAL", "BKR", "HES", "KMI", "ONEOK", "DVN", "CTRA", "APA", "FANG", "MRO"
+                ]
+            },
+            "XLV": {
+                "name": "醫療保健 (Healthcare)",
+                "constituents": [
+                    "LLY", "UNH", "JNJ", "ABBV", "MRK", "AMGN", "HCA", "PFE", "ISRG", "SYK", 
+                    "BSX", "MDT", "ABT", "GILD", "VRTX", "BMY", "REGN", "CI", "CVS", "ELV"
+                ]
+            },
+            "XLY": {
+                "name": "非必須消費 (Consumer Discretionary)",
+                "constituents": [
+                    "AMZN", "TSLA", "HD", "MCD", "NKE", "LOW", "TJX", "SBUX", "BKNG", "CMG", 
+                    "MAR", "F", "GM", "ORLY", "AZO", "HLT", "LVS", "YUM", "DHI", "PHM"
+                ]
+            },
+            "XLI": {
+                "name": "工業 (Industrial)",
+                "constituents": [
+                    "GE", "CAT", "RTX", "HON", "UNP", "LMT", "ETN", "DE", "WM", "BA", 
+                    "CSX", "NSC", "ITW", "GD", "NOC", "EMR", "PH", "FDX", "UPS", "CPRT"
+                ]
+            },
+            "XLP": {
+                "name": "必須消費 (Consumer Staples)",
+                "constituents": [
+                    "PG", "COST", "KO", "PEP", "PM", "MO", "WMT", "EL", "MDLZ", "CL", 
+                    "SYY", "KDP", "KR", "K", "GIS", "STZ", "HSY", "CHD", "ADM", "TSN"
+                ]
+            },
+            "XLB": {
+                "name": "原物料 (Materials)",
+                "constituents": [
+                    "LIN", "SHW", "APD", "FCX", "ECL", "NEM", "CTVA", "DOW", "DD", "PPG", 
+                    "VMC", "MLM", "IFF", "ALB", "CF", "NUE", "MOS", "FMC"
+                ]
+            },
+            "XLU": {
+                "name": "公用事業 (Utilities)",
+                "constituents": [
+                    "NEE", "SO", "DUK", "CEG", "WEC", "D", "AEP", "PEG", "EXC", "PCG", 
+                    "SRE", "ED", "XEL", "EIX", "FE", "AWK", "ES", "CNP", "ETR", "ATO"
+                ]
+            }
         }
     },
     "Taiwan": {
         "name": "台股",
         "benchmark": "^TWII",  # TAIEX
         "currency": "TWD",
-        # Taiwan standard tracking ETFs & Sector proxies
+        # Taiwan standard tracking ETFs & Sector proxies with constituents cache integrated
         "sector_etfs": {
-            "0050.TW": "元大台灣50 (Broad Market)",
-            "0052.TW": "富邦科技 (Tech Sector)",
-            "0056.TW": "元大高股息 (High Dividend)",
-            "2330.TW": "台積電 (Semiconductor Proxy)",
-            "2881.TW": "富邦金 (Financials Proxy)",
-            "1301.TW": "台塑 (Materials/Old Economy Proxy)"
+            "0050.TW": {
+                "name": "元大台灣50 (Broad Market)",
+                "constituents": [
+                    "2330.TW", "2317.TW", "2454.TW", "2382.TW", "2308.TW", "2881.TW", "2882.TW", "2303.TW", 
+                    "2891.TW", "3711.TW", "2412.TW", "1216.TW", "2886.TW", "5871.TW", "2603.TW", "2884.TW", 
+                    "2892.TW", "3231.TW", "2357.TW", "2324.TW", "2885.TW", "2880.TW", "2912.TW", "3045.TW"
+                ]
+            },
+            "0052.TW": {
+                "name": "富邦科技 (Tech Sector)",
+                "constituents": [
+                    "2330.TW", "2454.TW", "2317.TW", "2382.TW", "2308.TW", "2303.TW", "3711.TW", "2379.TW", 
+                    "3231.TW", "2345.TW", "2408.TW", "3034.TW", "2357.TW", "2449.TW", "3044.TW", "2376.TW", 
+                    "2301.TW", "6239.TW", "3008.TW", "2409.TW", "3481.TW", "8046.TW", "3532.TW", "2439.TW"
+                ]
+            },
+            "0056.TW": {
+                "name": "元大高股息 (High Dividend)",
+                "constituents": [
+                    "2382.TW", "3231.TW", "2301.TW", "2357.TW", "2603.TW", "3034.TW", "2454.TW", "2324.TW", 
+                    "3711.TW", "2379.TW", "3044.TW", "2409.TW", "3481.TW", "2891.TW", "2886.TW", "2408.TW", 
+                    "2303.TW", "2882.TW", "2881.TW", "1101.TW", "2002.TW", "2885.TW", "2892.TW", "2890.TW"
+                ]
+            },
+            "2330.TW": {
+                "name": "台積電 (Semiconductor Proxy)",
+                "constituents": ["2330.TW", "2449.TW", "3711.TW", "2408.TW", "2344.TW", "3231.TW", "2303.TW", "2454.TW", "3034.TW", "3532.TW", "6271.TW", "8046.TW", "3008.TW", "3653.TW"]
+            },
+            "2881.TW": {
+                "name": "富邦金 (Financials Proxy)",
+                "constituents": ["2881.TW", "2882.TW", "2891.TW", "2886.TW", "2884.TW", "2880.TW", "2885.TW", "2892.TW", "2890.TW", "5880.TW", "5876.TW", "2834.TW", "2883.TW", "2887.TW"]
+            },
+            "1301.TW": {
+                "name": "台塑 (Materials/Old Economy Proxy)",
+                "constituents": ["1301.TW", "1303.TW", "1326.TW", "6505.TW", "2002.TW", "1101.TW", "1402.TW", "2603.TW", "2609.TW", "2615.TW", "1102.TW", "2105.TW", "1304.TW", "1314.TW"]
+            }
         }
     }
 }

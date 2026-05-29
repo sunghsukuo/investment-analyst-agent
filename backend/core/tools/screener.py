@@ -2,69 +2,16 @@ import yfinance as yf
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-from core.config import DATA_DIR
+from core.config import DATA_DIR, REGIONS
 
-# Rich and high-quality cache of top constituents for major sector ETFs
-# Used as a robust fallback if dynamic HTML parsing is blocked
-ETF_CONSTITUENTS_CACHE = {
-    # US Sector ETFs
-    "XLK": [
-        "MSFT", "AAPL", "NVDA", "AVGO", "ORCL", "CRM", "AMD", "QCOM", "NOW", "ADBE", 
-        "INTU", "TXN", "AMAT", "MU", "IBM", "LRCX", "PANW", "ADI", "KLAC", "SNPS"
-    ],
-    "XLF": [
-        "JPM", "BRK-B", "V", "MA", "BAC", "WFC", "MS", "GS", "SCHW", "C", 
-        "BLK", "AXP", "BX", "CB", "SPGI", "MMC", "PGR", "MET", "AON", "USB"
-    ],
-    "XLE": [
-        "XOM", "CVX", "COP", "SLB", "EOG", "MPC", "PSX", "VLO", "OXY", "WMB", 
-        "HAL", "BKR", "HES", "KMI", "ONEOK", "DVN", "CTRA", "APA", "FANG", "MRO"
-    ],
-    "XLV": [
-        "LLY", "UNH", "JNJ", "ABBV", "MRK", "AMGN", "HCA", "PFE", "ISRG", "SYK", 
-        "BSX", "MDT", "ABT", "GILD", "VRTX", "BMY", "REGN", "CI", "CVS", "ELV"
-    ],
-    "XLY": [
-        "AMZN", "TSLA", "HD", "MCD", "NKE", "LOW", "TJX", "SBUX", "BKNG", "CMG", 
-        "MAR", "F", "GM", "ORLY", "AZO", "HLT", "LVS", "YUM", "DHI", "PHM"
-    ],
-    "XLI": [
-        "GE", "CAT", "RTX", "HON", "UNP", "LMT", "ETN", "DE", "WM", "BA", 
-        "CSX", "NSC", "ITW", "GD", "NOC", "EMR", "PH", "FDX", "UPS", "CPRT"
-    ],
-    "XLP": [
-        "PG", "COST", "KO", "PEP", "PM", "MO", "WMT", "EL", "MDLZ", "CL", 
-        "SYY", "KDP", "KR", "K", "GIS", "STZ", "HSY", "CHD", "ADM", "TSN"
-    ],
-    "XLB": [
-        "LIN", "SHW", "APD", "FCX", "ECL", "NEM", "CTVA", "DOW", "DD", "PPG", 
-        "VMC", "MLM", "IFF", "ALB", "CF", "NUE", "MOS", "FMC"
-    ],
-    "XLU": [
-        "NEE", "SO", "DUK", "CEG", "WEC", "D", "AEP", "PEG", "EXC", "PCG", 
-        "SRE", "ED", "XEL", "EIX", "FE", "AWK", "ES", "CNP", "ETR", "ATO"
-    ],
-    # Taiwan Sector Proxies
-    "0050.TW": [
-        "2330.TW", "2317.TW", "2454.TW", "2382.TW", "2308.TW", "2881.TW", "2882.TW", "2303.TW", 
-        "2891.TW", "3711.TW", "2412.TW", "1216.TW", "2886.TW", "5871.TW", "2603.TW", "2884.TW", 
-        "2892.TW", "3231.TW", "2357.TW", "2324.TW", "2885.TW", "2880.TW", "2912.TW", "3045.TW"
-    ],
-    "0052.TW": [
-        "2330.TW", "2454.TW", "2317.TW", "2382.TW", "2308.TW", "2303.TW", "3711.TW", "2379.TW", 
-        "3231.TW", "2345.TW", "2408.TW", "3034.TW", "2357.TW", "2449.TW", "3044.TW", "2376.TW", 
-        "2301.TW", "6239.TW", "3008.TW", "2409.TW", "3481.TW", "8046.TW", "3532.TW", "2439.TW"
-    ],
-    "0056.TW": [
-        "2382.TW", "3231.TW", "2301.TW", "2357.TW", "2603.TW", "3034.TW", "2454.TW", "2324.TW", 
-        "3711.TW", "2379.TW", "3044.TW", "2409.TW", "3481.TW", "2891.TW", "2886.TW", "2408.TW", 
-        "2303.TW", "2882.TW", "2881.TW", "1101.TW", "2002.TW", "2885.TW", "2892.TW", "2890.TW"
-    ],
-    # Custom Proxy Stock Sets to mock other region categories dynamically
-    "2330.TW": ["2330.TW", "2449.TW", "3711.TW", "2408.TW", "2344.TW", "3231.TW", "2303.TW", "2454.TW", "3034.TW", "3532.TW", "6271.TW", "8046.TW", "3008.TW", "3653.TW"],
-    "2881.TW": ["2881.TW", "2882.TW", "2891.TW", "2886.TW", "2884.TW", "2880.TW", "2885.TW", "2892.TW", "2890.TW", "5880.TW", "5876.TW", "2834.TW", "2883.TW", "2887.TW"],
-    "1301.TW": ["1301.TW", "1303.TW", "1326.TW", "6505.TW", "2002.TW", "1101.TW", "1402.TW", "2603.TW", "2609.TW", "2615.TW", "1102.TW", "2105.TW", "1304.TW", "1314.TW"]
-}
+# Dynamically construct the constituents cache from config.py to ensure a Single Source of Truth!
+# This decouples screener.py completely from the sector configuration details.
+ETF_CONSTITUENTS_CACHE = {}
+for region_code, region_info in REGIONS.items():
+    for etf, etf_info in region_info.get("sector_etfs", {}).items():
+        if isinstance(etf_info, dict) and "constituents" in etf_info:
+            ETF_CONSTITUENTS_CACHE[etf] = etf_info["constituents"]
+
 
 class QuantScreener:
     def __init__(self):
@@ -74,6 +21,7 @@ class QuantScreener:
         """
         Dynamically fetches constituents of the given ETF from Yahoo Finance.
         Falls back to a high-quality pre-seeded cache if scraping fails or gets blocked.
+        Supports automatic sector proxy resolution to decouple config.py settings.
         """
         etf_ticker = etf_ticker.strip().upper()
         
@@ -106,9 +54,37 @@ class QuantScreener:
         except Exception as e:
             print(f"[!] [Screener] 動態抓取 {etf_ticker} 成分股失敗 ({e})。將切換至靜態高品質快取。")
             
-        # Fallback to local cache
-        cache_list = ETF_CONSTITUENTS_CACHE.get(etf_ticker, [])
-        print(f"[*] [Screener] 載入 {etf_ticker} 成分股快取清單 (共 {len(cache_list)} 檔標的)。")
+        # Fallback to local cache with automatic proxy resolver
+        cache_list = ETF_CONSTITUENTS_CACHE.get(etf_ticker)
+        if cache_list is None:
+            # Smart automatic classifier for regional sector proxies
+            resolved_key = None
+            
+            # Prioritize matching against custom individual stock sector proxies (e.g. 2881.TW, 2330.TW, 1301.TW)
+            # to avoid false matching on broad market indices (e.g. 0050.TW) which contain almost all stocks.
+            custom_proxy_keys = ["2881.TW", "2330.TW", "1301.TW"]
+            for key in custom_proxy_keys:
+                if key in ETF_CONSTITUENTS_CACHE and etf_ticker in ETF_CONSTITUENTS_CACHE[key]:
+                    resolved_key = key
+                    break
+            
+            # If not found in custom proxies, search standard ETF lists as fallback
+            if not resolved_key:
+                for key, val_list in ETF_CONSTITUENTS_CACHE.items():
+                    if etf_ticker in val_list:
+                        resolved_key = key
+                        break
+            
+            if resolved_key:
+                cache_list = ETF_CONSTITUENTS_CACHE[resolved_key]
+                print(f"[*] [Screener] 偵測到 {etf_ticker} 為板塊代理人，自動映射至 {resolved_key} 的成分股清單。")
+            else:
+                # Absolute fallback: If not found anywhere, treat as single stock to prevent empty sector failure
+                cache_list = [etf_ticker]
+                print(f"[!] [Screener] 無法自動映射 {etf_ticker} 的板塊。將其視為單一獨立個股進行後續評估。")
+        else:
+            print(f"[*] [Screener] 載入 {etf_ticker} 成分股快取清單 (共 {len(cache_list)} 檔標的)。")
+            
         return cache_list
 
     def _get_projected_volume(self, hist: pd.DataFrame, region: str) -> float:

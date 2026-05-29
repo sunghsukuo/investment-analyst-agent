@@ -161,8 +161,11 @@ def get_sector_rankings(region_code: str) -> list:
     sector_etfs = region_info["sector_etfs"]
     
     # Calculate performance for each sector ETF
-    for etf_ticker, label in sector_etfs.items():
+    for etf_ticker, info_val in sector_etfs.items():
         try:
+            # Extract sector label name safely from integrated config structure
+            label_name = info_val["name"] if isinstance(info_val, dict) else info_val
+            
             t = yf.Ticker(etf_ticker)
             hist = t.history(period="10d")  # Pull slightly more to ensure enough days
             if hist.empty or len(hist) < 6:
@@ -179,7 +182,7 @@ def get_sector_rankings(region_code: str) -> list:
             
             rankings.append({
                 "ticker": etf_ticker,
-                "label": label,
+                "label": label_name,
                 "weekly_return": float(weekly_return),
                 "current_price": float(close_now),
                 "start_date": start_date_str,
