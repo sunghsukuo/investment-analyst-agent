@@ -1,0 +1,24 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+google-genai = "*"
+yfinance = "*"
+fastapi = "*"
+uvicorn = "*"
+pandas = "*"
+requests = "*"
+beautifulsoup4 = "*"
+python-dotenv = "*"
+markdown = "*"
+jinja2 = "*"
+pymysql = "*"
+cryptography = "*"
+
+[dev-packages]
+pytest = "*"
+
+[requires]
+python_version = "3.12"

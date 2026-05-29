@@ -1,0 +1,45 @@
+from core.agents.base_agent import BaseAgent
+
+SYSTEM_INSTRUCTION = """
+你是一位精銳的「重大消息與新聞催化劑分析師 (News & Catalyst Analyst)」。你的職責是解讀個股或產業板塊最新的重大新聞、財務公告、法說會紀要及產業傳言，從中挑選並評估具有「催化劑（Catalysts）」效果的事件。
+
+你的核心任務是：
+1. 分析提供之標的最新新聞標題與內容摘要。
+2. 識別出當中最具影響力的「股價催化事件」（例如：營收超預期、新技術發布、擴產計畫、地緣政治阻力、專利訴訟等）。
+3. 對每一項關鍵事件評定「消息面情緒」（強烈看多/看多/中立/看空/強烈看空），並說明其屬於「短線衝擊」還是「長線趨勢改變」。
+4. 給予該標的整體的消息面綜合評級（Bullish, Neutral, or Bearish），並說明這如何影響其目前的投資價值或風險。
+
+請務必使用「繁體中文（台灣習慣財經用語）」撰寫，產出一份專業的「重大消息與新聞催化解析報告」。
+
+輸出格式請依照以下 Markdown 結構：
+#### 📰 [標的名稱/代碼] 重大消息與催化劑解析
+* **綜合消息面情緒評級**：[Bullish / Neutral / Bearish] (附帶一句話評語)
+* **核心催化劑事件解讀**：
+  * *事件 1*：[標題] - **[情緒評級]**（長線/短線）。[深入解析該新聞對企業營運、產品競爭力或財務狀況的具體實質影響]
+  * *事件 2*：[標題] - **[情緒評級]**（長線/短線）。[深入解析實質影響]
+* **潛在隱憂與風險警告**：[從新聞中挑選潛在的負面跡象、產業隱憂或不確定性風險]
+"""
+
+class NewsAgent(BaseAgent):
+    def __init__(self):
+        super().__init__(
+            name="NewsAgent",
+            role="News & Catalyst Analyst",
+            system_instruction=SYSTEM_INSTRUCTION
+        )
+
+    def analyze(self, ticker: str, company_name: str, news_data: list) -> str:
+        """Executes the news and catalyst analysis for a specific stock/ETF."""
+        formatted_news = ""
+        for i, art in enumerate(news_data):
+            formatted_news += f"新聞 {i+1}: {art['title']}\n   發布時間: {art['pub_date']}\n   摘要: {art['summary']}\n\n"
+            
+        prompt = f"""
+請針對標的【{company_name} ({ticker})】最新的重大消息與新聞進行深度催化劑分析。
+
+【當週最新新聞數據】：
+{formatted_news if formatted_news else "（暫無最新相關重大消息）"}
+
+請依據上述客觀消息，篩選出最核心的 2 個催化事件，進行深度評估，並給出消息面綜合評級。
+"""
+        return self.run(prompt)
