@@ -206,6 +206,7 @@ def run_regional_analysis(region_code: str, report_date: str, reflection_directi
                 target_p = curr_price * 1.15 if curr_price else 0.0
                 stop_l = curr_price * 0.92 if curr_price else 0.0
                 rating = "Buy"
+                suggested_weight = None
                 
                 # Robust regex extraction parsing logic from LLM Markdown output
                 lines = stock_report.split("\n")
@@ -221,11 +222,30 @@ def run_regional_analysis(region_code: str, report_date: str, reflection_directi
                     elif "投資評級" in line:
                         if "Strong Buy" in line or "強烈買入" in line: rating = "Strong Buy"
                         elif "Hold" in line or "持有" in line: rating = "Hold"
+                    elif "建議持倉權重" in line or "持倉權重" in line or "建議權重" in line:
+                        import re
+                        weight_match = re.search(r"(\d+(?:\.\d+)?)\s*%", line)
+                        if weight_match:
+                            try:
+                                suggested_weight = float(weight_match.group(1)) / 100.0
+                            except ValueError:
+                                pass
+
+                # Semantic fallback based on parsed rating if LLM weight extraction failed
+                if suggested_weight is None or suggested_weight <= 0.0:
+                    if rating == "Strong Buy":
+                        suggested_weight = 0.15
+                    elif rating == "Buy":
+                        suggested_weight = 0.10
+                    elif rating == "Hold":
+                        suggested_weight = 0.05
+                    else:
+                        suggested_weight = 0.10
                 
-                # Dynamically allocate capital via BudgetAgent
+                # Dynamically allocate capital via BudgetAgent using parsed AI weight
                 from core.agents.budget_agent import BudgetAgent
                 budget_agent = BudgetAgent()
-                invested_amount, shares = budget_agent.allocate_budget(ticker, region_code, curr_price)
+                invested_amount, shares = budget_agent.allocate_budget(ticker, region_code, curr_price, custom_weight=suggested_weight)
                 
                 rec_id = db.save_recommendation(
                     report_date=report_date,

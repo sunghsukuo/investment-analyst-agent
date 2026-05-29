@@ -43,9 +43,10 @@ class BudgetAgent:
                 return dict(row)
         return {"currency": currency, "available_capital": 0.0, "reserved_cash": 0.0}
 
-    def allocate_budget(self, ticker: str, region: str, recommend_price: float) -> tuple:
+    def allocate_budget(self, ticker: str, region: str, recommend_price: float, custom_weight: float = None) -> tuple:
         """
-        根據當前可用資金與風險比例，為單一推薦個股分配可投資總額與計算股數。
+        根據當前可用資金與分配比例，為單一推薦個股分配可投資總額與計算股數。
+        優先採用 AI 代理人建議的權重，若無則採用預設比例。
         :return: (invested_amount, shares) - 分配金額與購買股數
         """
         currency = self.get_currency_by_region(region)
@@ -58,13 +59,17 @@ class BudgetAgent:
             print(f"[!] 預算代理人提示：{currency} 可用資金過低 ({available:.2f})，無法為 {ticker} 分配新預算。")
             return 0.0, 0.0
             
-        # 計算分配金額 (可用資金 * 預設風險分配率)
-        invested_amount = available * self.allocation_ratio
+        # 決定分配權重 (優先採用 AI 建議權重，限制最大權重為 40% 以進行風險防護)
+        ratio = custom_weight if custom_weight is not None and custom_weight > 0.0 else self.allocation_ratio
+        ratio = min(ratio, 0.40)
+        
+        # 計算分配金額 (可用資金 * 權重)
+        invested_amount = available * ratio
         
         # 計算股數
         shares = invested_amount / recommend_price
         
-        # 扣減 capital_ledger 中的可用資金 (扣減金額)
+        # 扣減 capital_ledger 中的可用資金
         new_available = available - invested_amount
         
         with db_session() as conn:
